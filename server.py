@@ -21,9 +21,9 @@ def get_json():
         abort(400)
     print "\n\n\n\nGood Request\n\n\n\n"
     im = base64.b64decode(request.json['image'])
-    image = _convert_to_image(bytearray(im))
-    image.save('Image.jpg')
-    image = client.image(filename='Image.jpg')
+    #image = _convert_to_image(bytearray(im))
+    #image.save('Image.jpg')
+    image = client.image(content=im)
     print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
     print "\n\n\n\nText detected\n\n\n\n"
