@@ -41,7 +41,7 @@ def post_receipt():
     print customer_id, '\n'
     receipt = request.json['image']
     print receipt, '\n'
-    db.insert({'CustomerID':customer_id,'Receipt':receipt})
+    db.insert({'CustomerID':int(customer_id),'Receipt':receipt})
     print db.all()
     return str(201)
 
