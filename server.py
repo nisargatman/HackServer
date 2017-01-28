@@ -8,7 +8,9 @@ import base64
 
 app = Flask(__name__)
 client = vision.Client()
-db = TinyDB('db.json')
+if os.path.exists('./db.json'):
+    os.remove('db.json')
+    db = TinyDB('db.json')
 
 def _convert_to_image(img_bytearray):
     output = io.BytesIO(img_bytearray)
@@ -47,6 +49,7 @@ def post_receipt():
 def get_receipt(customer_id):
     Customer = Query()
     receipts = db.search(Customer.CustomerID == customer_id)
+    print receipts
     return jsonify({"receipts":receipts})
 
 if __name__ == '__main__':
