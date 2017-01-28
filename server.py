@@ -42,14 +42,14 @@ def post_receipt():
     receipt = request.json['image']
     print receipt, '\n'
     db.insert({'CustomerID':int(customer_id),'Receipt':receipt})
-    print db.all()
+    #print db.all()
     return str(201)
 
 @app.route('/image/v1/get_image/<int:customer_id>',methods=['GET'])
 def get_receipt(customer_id):
     Customer = Query()
     receipts = db.search(Customer.CustomerID == customer_id)
-    print receipts
+    #print receipts
     return jsonify({"receipts":receipts})
 
 if __name__ == '__main__':
