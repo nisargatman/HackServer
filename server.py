@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, abort
 from google.cloud import vision
 from PIL import Image
 import io
+import os
 from tinydb import TinyDB, Query
 
 app = Flask(__name__)
@@ -19,6 +20,7 @@ def get_json():
     image.save('Image.jpg')
     image = client.image(filename='Image.jpg')
     texts = image.detect_text()
+    os.remove('Image.jpg')
     return jsonify({"Text":texts})
 
 @app.route('/image/v1/post_image', methods=['POST'])
@@ -29,6 +31,11 @@ def post_receipt():
     receipt = request.json['image']
     db.insert({'CustomerID':customer_id,'Receipt':receipt})
 
+@app.route('/image/v1/get_image/<int:customer_id>',methods=['GET'])
+def get_receipt(customer_id):
+    Customer = Query()
+    receipts = db.search(Customer.CustomerID == customer_id)
+    return jsonify({"receipts":receipts})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
