@@ -8,9 +8,7 @@ import base64
 
 app = Flask(__name__)
 client = vision.Client()
-if os.path.exists('./db.json'):
-    os.remove('db.json')
-    db = TinyDB('db.json')
+db = TinyDB('db.json')
 
 def _convert_to_image(img_bytearray):
     output = io.BytesIO(img_bytearray)
@@ -36,20 +34,24 @@ def get_json():
 def post_receipt():
     if not request.json or not 'image' in request.json or not 'CustomerID' in request.json:
         abort(400)
-
     customer_id = request.json['CustomerID']
-    print customer_id, '\n'
     receipt = request.json['image']
-    print receipt, '\n'
-    db.insert({'CustomerID':int(customer_id),'Receipt':receipt})
+
+    Customer = Query()
+    nums = db.search(Customer.CustomerID == customer_id)
+    serial_number = 0
+    for entry in nums:
+        if entry['SerialNumber'] > serial_number:
+            serial_number = entry['SerialNumber']
+
+    db.insert({'CustomerID':int(customer_id),'Receipt':receipt,'SerialNumber':serial_number+1})
     #print db.all()
     return str(201)
 
-@app.route('/image/v1/get_image/<int:customer_id>',methods=['GET'])
-def get_receipt(customer_id):
+@app.route('/image/v1/get_image/<int:customer_id>/<int:serial_number>',methods=['GET'])
+def get_receipt(customer_id,serial_number):
     Customer = Query()
-    receipts = db.search(Customer.CustomerID == customer_id)
-    #print receipts
+    receipts = db.search(Customer.CustomerID == customer_id and Customer.SerialNumber >= serial_number)
     return jsonify({"receipts":receipts})
 
 if __name__ == '__main__':
