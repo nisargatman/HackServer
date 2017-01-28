@@ -18,3 +18,7 @@ def get_json():
     image = client.image(filename='Image.jpg')
     texts = image.detect_text()
     return jsonify({"Text":texts})
+
+if __name__ == '__main__':
+    print "hello"
+    app.run(host='0.0.0.0')
