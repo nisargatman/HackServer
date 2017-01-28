@@ -16,10 +16,13 @@ def _convert_to_image(img_bytearray):
 def get_json():
     if not request.json or not 'image' in request.json:
         abort(400)
-    image = _convert_to_image(request.json['image'])
+    print "\n\n\n\nGood Request\n\n\n\n"
+    image = _convert_to_image(bytearray(request.json['image'])
     image.save('Image.jpg')
     image = client.image(filename='Image.jpg')
+    print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
+    print "\n\n\n\nText detected\n\n\n\n"
     os.remove('Image.jpg')
     return jsonify({"Text":texts})
 
