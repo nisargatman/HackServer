@@ -42,6 +42,7 @@ def post_receipt():
     print nums, '\n\n'
     serial_number = 0
     for entry in nums:
+        print entry
         if entry['SerialNumber'] > serial_number:
             serial_number = entry['SerialNumber']
 
