@@ -11,7 +11,7 @@ db = TinyDB('db.json')
 
 def _convert_to_image(img_bytearray):
     output = io.BytesIO(img_bytearray)
-    output.flush()
+    #output.flush()
     output.seek(0)
     return Image.open(output)
 
