@@ -32,7 +32,7 @@ def get_json():
 
 @app.route('/image/v1/post_image', methods=['POST'])
 def post_receipt():
-    if not request.json or not 'image' in request.json or not 'CustomerID' in reqest.json:
+    if not request.json or not 'image' in request.json or not 'CustomerID' in request.json:
         abort(400)
 
     customer_id = request.json['CustomerID']
