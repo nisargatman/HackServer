@@ -12,6 +12,7 @@ db = TinyDB('db.json')
 
 def _convert_to_image(img_bytearray):
     output = io.BytesIO(img_bytearray)
+    output.seek(0)
     return Image.open(output)
 
 @app.route('/image/v1/read_text', methods=['POST'])
