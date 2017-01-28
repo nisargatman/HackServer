@@ -34,17 +34,18 @@ def get_json():
 def post_receipt():
     if not request.json or not 'image' in request.json or not 'CustomerID' in request.json:
         abort(400)
-    customer_id = request.json['CustomerID']
+    customer_id = int(request.json['CustomerID'])
     receipt = request.json['image']
 
     Customer = Query()
     nums = db.search(Customer.CustomerID == customer_id)
+    print nums, '\n\n'
     serial_number = 0
     for entry in nums:
         if entry['SerialNumber'] > serial_number:
             serial_number = entry['SerialNumber']
 
-    db.insert({'CustomerID':int(customer_id),'Receipt':receipt,'SerialNumber':serial_number+1})
+    db.insert({'CustomerID':customer_id, 'Receipt':receipt, 'SerialNumber':serial_number+1})
     #print db.all()
     return str(201)
 
