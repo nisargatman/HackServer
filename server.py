@@ -44,6 +44,7 @@ def post_receipt():
     customer_id = request.json['CustomerID']
     receipt = request.json['image']
     db.insert({'CustomerID':customer_id,'Receipt':receipt})
+    return 201
 
 @app.route('/image/v1/get_image/<int:customer_id>',methods=['GET'])
 def get_receipt(customer_id):
