@@ -53,6 +53,8 @@ def post_receipt():
 @app.route('/image/v1/get_image/<int:customer_id>/<int:serial_number>',methods=['GET'])
 def get_receipt(customer_id,serial_number):
     Customer = Query()
+    print "SNO", serial_number
+    print "CID", customer_id
     receipts = db.search(Customer.CustomerID == customer_id and Customer.SerialNumber >= serial_number)
     return jsonify({"receipts":receipts})
 
