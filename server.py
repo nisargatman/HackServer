@@ -20,6 +20,8 @@ def get_json():
     if not request.json or not 'image' in request.json:
         abort(400)
     print "\n\n\n\nGood Request\n\n\n\n"
+    print type(request.json['image'])
+    print request.json['image']
     image = _convert_to_image(bytearray(request.json['image'],'utf8'))
     image.save('Image.jpg')
     image = client.image(filename='Image.jpg')
