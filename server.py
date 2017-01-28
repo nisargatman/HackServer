@@ -32,18 +32,15 @@ def get_json():
 
 @app.route('/image/v1/post_image', methods=['POST'])
 def post_receipt():
-    if not request.json:
-        print "not json\n\n"
+    if not request.json or not 'image' in request.json or not 'CustomerID' in reqest.json:
         abort(400)
-    elif not 'image' in request.json:
-        print "no image\n\n"
-        abort(400)
-    elif not 'CustomerID' in request.json:
-        print "no id\n\n"
-        abort(400)
+
     customer_id = request.json['CustomerID']
+    print customer_id, '\n'
     receipt = request.json['image']
+    print receipt, '\n'
     db.insert({'CustomerID':customer_id,'Receipt':receipt})
+    print db.all()
     return str(201)
 
 @app.route('/image/v1/get_image/<int:customer_id>',methods=['GET'])
