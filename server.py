@@ -2,14 +2,16 @@ from flask import Flask, jsonify, request, abort
 from google.cloud import vision
 from PIL import Image
 import io
+from tinydb import TinyDB, Query
 
 app = Flask(__name__)
 client = vision.Client()
+db = TinyDB('db.json')
 
 def _convert_to_image(img_bytearray):
     return Image.open(io.BytesIO(img_bytearray))
 
-@app.route('/image/v1/get_json', methods=['POST'])
+@app.route('/image/v1/read_text', methods=['POST'])
 def get_json():
     if not request.json or not 'image' in request.json:
         abort(400)
@@ -18,6 +20,15 @@ def get_json():
     image = client.image(filename='Image.jpg')
     texts = image.detect_text()
     return jsonify({"Text":texts})
+
+@app.route('/image/v1/post_image', methods=['POST'])
+def post_receipt():
+    if not request.json or not 'image' in request.json or not 'CustomerID' in request.json:
+        abort(400)
+    customer_id = request.json['CustomerID']
+    receipt = request.json['image']
+    db.insert({'CustomerID':customer_id,'Receipt':receipt})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
