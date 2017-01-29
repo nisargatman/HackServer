@@ -4,6 +4,7 @@ import os
 import sys
 from tinydb import TinyDB, Query
 import requests
+import json
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -36,6 +37,9 @@ def not_found(error):
 def bad_input(error):
     return make_response(jsonify({'error': 'Bad Input'}), 400)
 
+def _clean(text):
+    api_out = json.loads(text)
+    return json.dumps(api_out)
 
 @app.route('/image/v1/read_text', methods=['POST'])
 def read_text():
@@ -52,7 +56,7 @@ def read_text():
     response = requests.request( 'post', _url, json = None, data = data, headers = headers, params = params )
     os.remove('im.jpg')
 
-    return jsonify({"Text":response.json()})
+    return jsonify({"RawText":response.json(),"CleanText":_clean(response.json())})
 
 @app.route('/image/v1/post_image', methods=['POST'])
 @auth.login_required
