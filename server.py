@@ -6,6 +6,7 @@ from tinydb import TinyDB, Query
 import requests
 import json
 from nltk.corpus import wordnet
+import base64
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
