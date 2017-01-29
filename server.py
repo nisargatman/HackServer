@@ -30,7 +30,7 @@ def get_json():
     print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
     print "\n\n\n\nText detected\n\n\n\n"
-    os.remove('Image.jpg')
+    os.remove('im.jpg')
     return jsonify({"Text":texts})
 
 @app.route('/image/v1/post_image', methods=['POST'])
