@@ -40,7 +40,10 @@ def bad_input(error):
     return make_response(jsonify({'error': 'Bad Input'}), 400)
 
 def _clean(output):
-    regions = output["regions"]
+    try:
+        regions = output["regions"]
+    except:
+        return
 
     txt_list = list()
     for entry in regions:
