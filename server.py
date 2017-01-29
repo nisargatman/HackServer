@@ -26,7 +26,7 @@ def get_json():
         f.write(im)
     #image = _convert_to_image(bytearray(im,'utf8'))
     #image.save('Image.jpg')
-    image = client.image(content=im)
+    image = client.image(filename='im.jpg')
     print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
     print "\n\n\n\nText detected\n\n\n\n"
