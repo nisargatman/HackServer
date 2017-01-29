@@ -7,6 +7,7 @@ import requests
 import json
 from nltk.corpus import wordnet
 import base64
+import time
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -38,6 +39,69 @@ def not_found(error):
 @app.errorhandler(400)
 def bad_input(error):
     return make_response(jsonify({'error': 'Bad Input'}), 400)
+
+
+def _local_encode(output):
+    try:
+        regions = output["regions"]
+    except:
+        return
+    total = 0
+    counter = 0
+    classes = ['grocery','drinks','meal','vegetable','clothes','tourism','luxury','furniture','vehicle','name','country','money']
+    for entry in classes:
+        syns = wordnet.synsets(entry)
+        val = syns[0]
+        classes[counter] = val
+        counter = counter + 1
+    
+    items = []
+    lines = [region["lines"] for region in regions] # now a list of lists
+    y_dict = {}
+    for sublist in lines:
+        for entry in sublist:
+            coord = entry["boundingBox"]
+            coord = int(coord.split(',')[1])
+            if coord not in y_dict:
+                y_dict[coord] = [entry["words"]]
+            else:
+                y_dict[coord].append(entry["words"])
+    for ordinate, words in enumerate(y_dict):
+        maximum = 0
+        counter = 0
+        for word in words:
+            val = word["text"]
+            if val.isalpha():
+                sim_vector = list()
+                for label in classes:
+                    try:
+                        syns = wordnet.synsets(val)
+                        temp = syns[0]
+                        sim_vector.append(temp.wup_similarity(label))
+                    except:
+                        sim_vector.append(0)
+                if max(sim_vector) > maximum:
+                    maximum = max(sim_vector)
+                    max_id = val
+                    label = classes[sim_vector.index(max(sim_vector))]
+            else:
+                price = 0
+                try:
+                    num = float(val)
+                except:
+                    pass
+                if isinstance(num,float) and '.' in val:
+                    price = num
+                elif '£' in val:
+                    price = float(val[1:])
+                total = total + price
+            counter = counter + 1
+        items.extend([max_id,label,price])
+    
+    return json.dumps({time.time():{"vendor":"Sainsburys","total":total,"items":items}})
+            
+    
+
 
 def _clean(output):
     try:
@@ -120,7 +184,7 @@ def read_text():
     response = requests.request( 'post', _url, data=data, headers=headers, params=params)
     os.remove('im.jpg')
 
-    return jsonify({"RawText":response.json(),"CleanText":_clean(response.json())})
+    return jsonify({"RawText":response.json(),"CleanText":_clean(response.json()),"LocalFormat":_local_encode(response.json())})
 
 @app.route('/image/v1/post_image', methods=['POST'])
 @auth.login_required
