@@ -4,21 +4,14 @@ import io
 import os
 import sys
 from tinydb import TinyDB, Query
-import base64
-import httplib, urllib, base64
+import requests
 
 app = Flask(__name__)
 db = TinyDB('db.json')
 _key = '127d4e6c2d7e4b22a0e1a1d77cc40d1c'
-
-headers = {
-    'Content-Type': 'application/json',
-    'Ocp-Apim-Subscription-Key': _key,
-}
-params = urllib.urlencode({
-    'language': 'unk',
-    'detectOrientation ': 'true',
-})
+_url = 'https://westus.api.cognitive.microsoft.com/vision/v1.0/ocr'
+headers = {'Content-Type': 'application/octet-stream','Ocp-Apim-Subscription-Key': _key}
+params = {'language': 'en','detectOrientation ': 'true'}
 
 
 @app.route('/image/v1/read_text', methods=['POST'])
@@ -30,22 +23,16 @@ def get_json():
     im = base64.b64decode(request.json['image'])
     with open('im.jpg','w') as f:
         f.write(im)
-    
     with open('./im.jpg','rb') as image_file:
         data = image_file.read()
-    
-    try:
-        conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/vision/v1.0/ocr?%s" % params, data, headers)
-        response = conn.getresponse()
-        data = response.read()
-        print data
-        conn.close()
-    except Exception as e:
-        print e
-    
+
+    with open('im.jpg','rb') as image_file:
+	    data = image_file.read()
+
+    response = requests.request( 'post', _url, json = None, data = data, headers = headers, params = params )
     os.remove('im.jpg')
-    return jsonify({"Text":data})
+
+    return jsonify({"Text":response.json()})
 
 @app.route('/image/v1/post_image', methods=['POST'])
 def post_receipt():
