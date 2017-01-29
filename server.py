@@ -21,10 +21,11 @@ def get_json():
     if not request.json or not 'image' in request.json:
         abort(400)
     print "\n\n\n\nGood Request\n\n\n\n"
-    im = request.json['image']
-    image = _convert_to_image(bytearray(im,'utf8'))
-    image.save('Image.jpg')
-    image = client.image(filename='Image.jpg')
+    print request.json['image']
+    im = base64.b64decode(request.json['image']).decode('UTF-8')
+    #image = _convert_to_image(bytearray(im,'utf8'))
+    #image.save('Image.jpg')
+    image = client.image(content=im)
     print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
     print "\n\n\n\nText detected\n\n\n\n"
