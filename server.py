@@ -92,8 +92,6 @@ def _local_encode(output):
                     pass
                 if isinstance(num,float) and '.' in val:
                     price = num
-                #elif u"£" in val:
-                    #price = float(val[1:])
                 total = total + price
             counter = counter + 1
         items.extend([max_id,label,price])
