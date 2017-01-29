@@ -1,39 +1,51 @@
 from flask import Flask, jsonify, request, abort
-from google.cloud import vision
 from PIL import Image
 import io
 import os
 import sys
 from tinydb import TinyDB, Query
 import base64
+import httplib, urllib, base64
 
 app = Flask(__name__)
-client = vision.Client()
 db = TinyDB('db.json')
+_key = '127d4e6c2d7e4b22a0e1a1d77cc40d1c'
 
-def _convert_to_image(img_bytearray):
-    output = io.BytesIO(img_bytearray)
-    output.seek(0)
-    return Image.open(output)
+headers = {
+    'Content-Type': 'application/json',
+    'Ocp-Apim-Subscription-Key': _key,
+}
+params = urllib.urlencode({
+    'language': 'unk',
+    'detectOrientation ': 'true',
+})
+
 
 @app.route('/image/v1/read_text', methods=['POST'])
 def get_json():
     if not request.json or not 'image' in request.json:
         abort(400)
-    print "\n\n\n\nGood Request\n\n\n\n"
+    print "\n\n\n\nGood Request\n\n\n"
 
     im = base64.b64decode(request.json['image'])
     with open('im.jpg','w') as f:
         f.write(im)
     
     with open('./im.jpg','rb') as image_file:
-        image = client.image(content=image_file.read())
-
-    print "\n\n\n\nImage saved\n\n\n\n"
-    texts = image.detect_text()
-    print "\n\n\n\nText detected\n\n\n\n"
+        data = image_file.read()
+    
+    try:
+        conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn.request("POST", "/vision/v1.0/ocr?%s" % params, data, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print data
+        conn.close()
+    except Exception as e:
+        print e
+    
     os.remove('im.jpg')
-    return jsonify({"Text":texts})
+    return jsonify({"Text":data})
 
 @app.route('/image/v1/post_image', methods=['POST'])
 def post_receipt():
