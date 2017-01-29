@@ -117,7 +117,7 @@ def read_text():
     with open('im.jpg','rb') as image_file:
 	    data = image_file.read()
 
-    response = requests.request( 'post', _url, json=None, data=data, headers=headers, params=params)
+    response = requests.request( 'post', _url, data=data, headers=headers, params=params)
     os.remove('im.jpg')
 
     return jsonify({"RawText":response.json(),"CleanText":_clean(response.json())})
