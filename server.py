@@ -3,6 +3,7 @@ from google.cloud import vision
 from PIL import Image
 import io
 import os
+import sys
 from tinydb import TinyDB, Query
 import base64
 
@@ -29,7 +30,7 @@ def get_json():
         texts = image.detect_text()
         print "\n\n\n\nText detected\n\n\n\n"
     except:
-        e = sys_exc_info()[0]
+        e = sys.exc_info()[0]
         print e
     os.remove('Image.jpg')
     return jsonify({"Text":texts})
