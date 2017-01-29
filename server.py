@@ -40,9 +40,6 @@ def bad_input(error):
     return make_response(jsonify({'error': 'Bad Input'}), 400)
 
 def _clean(output):
-    lang = output["language"]
-    angle = output["textAngle"]
-    orientation = output["orientation"]
     regions = output["regions"]
 
     txt_list = list()
