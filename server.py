@@ -24,14 +24,10 @@ def get_json():
     im = request.json['image'].decode('UTF-8')
     #image = _convert_to_image(bytearray(im))
     #image.save('Image.jpg')
-    image = client.image(content=im)
+    image = client.image(content=im.read())
     print "\n\n\n\nImage saved\n\n\n\n"
-    try:
-        texts = image.detect_text()
-        print "\n\n\n\nText detected\n\n\n\n"
-    except:
-        e = sys.exc_info()[0]
-        print e
+    texts = image.detect_text()
+    print "\n\n\n\nText detected\n\n\n\n"
     os.remove('Image.jpg')
     return jsonify({"Text":texts})
 
