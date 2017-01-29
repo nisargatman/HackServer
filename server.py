@@ -1,7 +1,5 @@
 from flask import Flask, jsonify, request, abort, make_response
 from flask.ext.httpauth import HTTPBasicAuth
-from PIL import Image
-import io
 import os
 import sys
 from tinydb import TinyDB, Query
@@ -48,9 +46,6 @@ def read_text():
     im = base64.b64decode(request.json['image'])
     with open('im.jpg','w') as f:
         f.write(im)
-    with open('./im.jpg','rb') as image_file:
-        data = image_file.read()
-
     with open('im.jpg','rb') as image_file:
 	    data = image_file.read()
 
@@ -78,16 +73,27 @@ def post_receipt():
 
     db.insert({'CustomerID':customer_id, 'Receipt':receipt, 'SerialNumber':serial_number+1})
     #print db.all()
-    return str(201)
+    return jsonify({"ReturnCode":str(201)})
 
 @app.route('/image/v1/get_image/<int:customer_id>/<int:serial_number>',methods=['GET'])
 @auth.login_required
 def get_receipt(customer_id,serial_number):
     Customer = Query()
-    print "SNO", serial_number
-    print "CID", customer_id
     receipts = db.search((Customer.CustomerID == customer_id) & (Customer.SerialNumber >= serial_number))
-    return jsonify({"receipts":receipts})
+    return jsonify({"Receipts":receipts})
+
+@app.route('/image/v1/clean_database',methods=['GET'])
+@auth.login_required
+def clean_database():
+    db.purge()
+    return jsonify({"ReturnCode":201})
+
+@app.route('/image/v1/delete_entry/<int:customer_id>/<int:serial_number>',methods=['GET'])
+@auth.login_required
+def delete_entry():
+    Customer = Query()
+    db.remove((Customer.CustomerID == customer_id) & (Customer.SerialNumber == serial_number))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
