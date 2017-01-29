@@ -22,9 +22,9 @@ def get_json():
         abort(400)
     print "\n\n\n\nGood Request\n\n\n\n"
     im = request.json['image'].decode('UTF-8')
-    #image = _convert_to_image(bytearray(im))
-    #image.save('Image.jpg')
-    image = client.image(content=im.read())
+    image = _convert_to_image(bytearray(im))
+    image.save('Image.jpg')
+    image = client.image(filename='Image.jpg')
     print "\n\n\n\nImage saved\n\n\n\n"
     texts = image.detect_text()
     print "\n\n\n\nText detected\n\n\n\n"
