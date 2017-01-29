@@ -51,15 +51,16 @@ def _clean(output):
             words = data["words"]
             for text in words:
                 txt_list.append(text["text"].encode('ascii','ignore'))
+
     counter = 0
-    classes = ['grocery','drinks','meal','vegetable','clothes','tourism','luxury','furniture','vehicle']
+    classes = ['grocery','drinks','meal','vegetable','clothes','tourism','luxury','furniture','vehicle','name','country','money']
     for entry in classes:
         syns = wordnet.synsets(entry)
         val = syns[0]
         classes[counter] = val
         counter = counter + 1
 
-    similarity_matrix = list()
+    similarity_matrix = list() # text_values x labels
     for each in txt_list:
         sim_vector = list()
         for label in classes:
@@ -70,6 +71,37 @@ def _clean(output):
             except:
                 sim_vector.append(0)
         similarity_matrix.append(sim_vector)
+
+
+    def _find_price(ctr):
+        for val in [txt_list[n] for n in [ctr + 1, ctr + 2, ctr + 3]]:
+            try:
+                num = float(val)
+            except:
+                pass
+            if isinstance(num,float) and '.' in val:
+                return num
+            else:
+                return 0
+          
+    cutoff = 0.25
+    output_dict = {}
+    ctr = 0
+    for entry in similarity_matrix:
+        if txt_list[ctr].isalpha() and len(txt_list[ctr])>=2:
+            if any(x >= cutoff for x in entry):
+                item = txt_list[ctr]
+                labelno = entry.index(max(entry))
+                label = classes[labelno]
+                price = 0
+                try:
+                    price = _find_price(ctr)
+                except:
+                    pass
+                output_dict[item] = [label.lemmas()[0].name().encode('ascii','ignore'),price]
+        ctr = ctr + 1
+
+    return json.dumps(output_dict)
 
 
 @app.route('/image/v1/read_text', methods=['POST'])
