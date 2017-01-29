@@ -157,7 +157,7 @@ def clean_database():
 
 @app.route('/image/v1/delete_entry/<int:customer_id>/<int:serial_number>',methods=['GET'])
 @auth.login_required
-def delete_entry():
+def delete_entry(customer_id,serial_number):
     Customer = Query()
     db.remove((Customer.CustomerID == customer_id) & (Customer.SerialNumber == serial_number))
 
