@@ -5,6 +5,7 @@ import sys
 from tinydb import TinyDB, Query
 import requests
 import json
+from nltk.corpus import wordnet
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -37,9 +38,39 @@ def not_found(error):
 def bad_input(error):
     return make_response(jsonify({'error': 'Bad Input'}), 400)
 
-def _clean(text):
-    api_out = json.loads(text)
-    return json.dumps(api_out)
+def _clean(output):
+    lang = output["language"]
+    angle = output["textAngle"]
+    orientation = output["orientation"]
+    regions = output["regions"]
+
+    txt_list = list()
+    for entry in regions:
+        lines = entry["lines"]
+        for data in lines:
+            words = data["words"]
+            for text in words:
+                txt_list.append(text["text"].encode('ascii','ignore'))
+    counter = 0
+    classes = ['grocery','drinks','meal','vegetable','clothes','tourism','luxury','furniture','vehicle']
+    for entry in classes:
+        syns = wordnet.synsets(entry)
+        val = syns[0]
+        classes[counter] = val
+        counter = counter + 1
+
+    similarity_matrix = list()
+    for each in txt_list:
+        sim_vector = list()
+        for label in classes:
+            try:
+                syns = wordnet.synsets(each)
+                val = syns[0]
+                sim_vector.append(val.wup_similarity(label))
+            except:
+                sim_vector.append(0)
+        similarity_matrix.append(sim_vector)
+
 
 @app.route('/image/v1/read_text', methods=['POST'])
 def read_text():
