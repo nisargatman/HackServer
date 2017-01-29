@@ -40,7 +40,7 @@ def bad_input(error):
 
 
 @app.route('/image/v1/read_text', methods=['POST'])
-def get_json():
+def read_text():
     if not request.json or not 'image' in request.json:
         abort(400)
     print "\n\n\n\nGood Request\n\n\n"
